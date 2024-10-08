@@ -14,13 +14,12 @@ from sklearn.impute import SimpleImputer
 train_df = pd.read_csv('../data/train.csv')
 test_df = pd.read_csv('../data/test.csv')
 
-# Fill in missing value Age with average
-#train_df['Age']=train_df['Age'].fillna(train_df['Age'].median()).infer_objects(copy=False)
 # Impute missing values in the entire 'Age' column using median
 imputer = SimpleImputer(strategy='median')
 train_df['Age'] = imputer.fit_transform(train_df[['Age']])
 # Now handle the male outliers (> 63 years) by filling them with the median age
 train_df.loc[(train_df['Sex'] == 'male') & (train_df['Age'] > 63), 'Age'] = train_df['Age'].median()
+
 # Delete Cabin column
 train_df.drop('Cabin', axis=1, inplace=True)
 # Fill missing values with the most frequent value (mode)
