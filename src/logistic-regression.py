@@ -1,100 +1,93 @@
-# Import libraries for data analysis 
+# Import libraries
 import pandas as pd
-import numpy as np
-
-# Import libraries for Logistic Regression model with L2 (Ridge) regularization
+from sklearn import model_selection
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, confusion_matrix
-from sklearn.preprocessing import StandardScaler # scaling is important when using regularization
-from sklearn.model_selection import cross_val_score
-from sklearn.impute import SimpleImputer
+from sklearn import metrics
+from sklearn.preprocessing import StandardScaler
+
+# DATA INGESTION
 
 # Fetch the data
 train_df = pd.read_csv('../data/train.csv')
 test_df = pd.read_csv('../data/test.csv')
 
-# Impute missing values in the entire 'Age' column using median
-imputer = SimpleImputer(strategy='median')
-train_df['Age'] = imputer.fit_transform(train_df[['Age']])
-# Now handle the male outliers (> 63 years) by filling them with the median age
-train_df.loc[(train_df['Sex'] == 'male') & (train_df['Age'] > 63), 'Age'] = train_df['Age'].median()
+# PREPROCESSING
 
-# Delete Cabin column
-train_df.drop('Cabin', axis=1, inplace=True)
-# Fill missing values with the most frequent value (mode)
-train_df['Embarked'].fillna(train_df['Embarked'].mode()[0])
+# Create a fake Survived column for test data
+test_df.loc[:,"Survived"] = -1
 
-# Convert 'Sex' and 'Embarked' to dummy variables (one-hot encoding)
-train_df = pd.get_dummies(train_df, columns=['Sex', 'Embarked'], drop_first=True)
+# Concatenate both training and test data
+data = pd.concat([train_df,test_df]).reset_index(drop=True)
 
-# Check new col names after one-hot encoding
-print("Columns after one-hot encoding:")
-print(train_df.columns)
+# FEATURE ENGINEERING
 
-# Define features (X) and target (y)
-X = train_df[['Pclass', 'Age', 'Fare', 'SibSp', 'Parch', 'Sex_male', 'Embarked_Q', 'Embarked_S']]
-y = train_df['Survived']
+# Drop non interested columns
+data.drop(['PassengerId','Name','Cabin','Embarked','Sex','Ticket','Age','Fare'], axis=1, inplace=True)
+data.head()
 
-# Scale the features (scaling is important when using regularization)
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
+# split the training and test data again
+train_df = data[data.Survived != -1].reset_index(drop=True) 
+test_df = data[data.Survived == -1].reset_index(drop=True)
 
-# Split the data into training and test sets
-# X_train, X_val, y_train, y_val = train_test_split(X_scaled, y, test_size=0.3, random_state=42)
+# CROSS-VALIDATION
+# We create a new column called kfold and fill it with -1
+train_df['kfold'] = -1
 
-# Initialize the Logistic Regression model with L2 regularization (Ridge)
-logreg = LogisticRegression(penalty='l2', C=1.0, solver='liblinear', class_weight='balanced')  # C is the inverse of regularization strength (smaller C = stronger regularization)
+# The next step is to randomize the rows of the data
+train_df = train_df.sample(frac=1,random_state=32).reset_index(drop=True)
 
-# Fit the model to the training data
-#logreg.fit(X_train, y_train)
+# Fetch the targets
+y = train_df.Survived.values
 
-# Make predictions on the validation set
-#y_pred = logreg.predict(X_val)
+# Inititate the kfold class
+kf = model_selection.StratifiedKFold(n_splits=5)
 
-# Evaluate the model
-#accuracy = accuracy_score(y_val, y_pred)
-#conf_matrix = confusion_matrix(y_val, y_pred)
+# fill the new kfold column
+for f, (t_, v_) in enumerate(kf.split(X=train_df,y=y)):
+    train_df.loc[v_,'kfold'] = f
 
-#print(f'Accuracy: {accuracy}')
-#print('Confusion Matrix:')
-#print(conf_matrix)
 
-# Perform 5-fold cross-validation
-cv_scores = cross_val_score(logreg, X_scaled, y, cv=5)
-# Display cross-validation accuracy
-print(f'Cross-validated accuracy: {cv_scores.mean()}')
+# Collect accuracies
+lst = []
 
-# Fit the model to the full training data
-logreg.fit(X_scaled, y)
+# Loop folds
+for fold in range(0,5):
+    # Training data is where kfold is not equal to provided fold
+    df_train = train_df[train_df.kfold != fold].reset_index(drop=True)
+    
+    # Validation data is where kfold is equal to provided fold
+    df_valid = train_df[train_df.kfold == fold].reset_index(drop=True)
 
-# Preprocess test data
-test_df['Age'] = test_df['Age'].fillna(test_df['Age'].median()).infer_objects(copy=False)
-test_df.drop('Cabin', axis=1, inplace=True)
-test_df['Fare'] = test_df['Fare'].fillna(test_df['Fare'].median())  # Test set has a missing Fare value
-test_df = pd.get_dummies(test_df, columns=['Sex', 'Embarked'], drop_first=True)
+    # Drop the Survived column from dataframe and convert it to a numpy array
+    x_train = df_train.drop('Survived',axis=1).values
+    y_train = df_train.Survived.values
 
-# Ensure all columns match between train and test data
-missing_cols = set(X.columns) - set(test_df.columns)
-for col in missing_cols:
-    test_df[col] = 0
+    # Similarly, for validation we have
+    x_valid = df_valid.drop('Survived',axis=1).values
+    y_valid = df_valid.Survived.values
 
-# Select the same features as in the training set
-X_test = test_df[['Pclass', 'Age', 'Fare', 'SibSp', 'Parch', 'Sex_male', 'Embarked_Q', 'Embarked_S']]
+    # INITIALIZE THE MODEL & FINE-TUNING
+    model = LogisticRegression(penalty='l2', C=1.0, solver='liblinear', class_weight='balanced',random_state=32)
 
-# Scale the test data
-X_test_scaled = scaler.transform(X_test)
+    # Fit the model on training data
+    model.fit(x_train,y_train)
+
+    # Create predictions for validations samples
+    preds = model.predict(x_valid)
+
+    # Calculate & print accuracy
+    accuracy = metrics.accuracy_score(y_valid,preds)
+    print(f"Fold = {fold}, Accuracy = {accuracy}")
+
+    lst.append(accuracy)
+
+Average = sum(lst) / len(lst) 
+print(f"Average accuracy = {Average}")
 
 # Make predictions on the test data
-test_predictions = logreg.predict(X_test_scaled)
+test_predictions = model.predict(test_df.values)
 
 # Prepare the submission file
-submission = pd.DataFrame({
-    'PassengerId': test_df['PassengerId'],
-    'Survived': test_predictions
-})
-
-# Save to CSV
-submission.to_csv('../data/submission.csv', index=False)
-
-print("Submission file saved as 'submission.csv'.")
+submission = pd.read_csv('../data/submission.csv')
+submission['Survived'] = test_predictions
+submission.head(20)
