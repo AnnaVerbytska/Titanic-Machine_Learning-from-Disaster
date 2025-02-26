@@ -1,5 +1,6 @@
 # Step 1: Import necessary libraries
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler # scaling data
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
@@ -12,6 +13,19 @@ from scikeras.wrappers import KerasClassifier
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 from tensorflow.python.keras.activations import sigmoid
 import tensorflow as tf; tf.keras
+# Settings
+import sys
+sys.path.append('../')
+# Enable autoreload only in Jupyter
+try:
+    from IPython import get_ipython
+    get_ipython().run_line_magic('load_ext', 'autoreload')
+except (ImportError, AttributeError):
+    pass  # Ignore if not in Jupyter
+
+# Import feature engineering functions
+from src.preprocessing import drop_columns
+
 
 # Step 1: Load the concatenated cleaned data file (CSV)
 data = pd.read_csv('cleaned_data.csv')
