@@ -15,16 +15,9 @@ from tensorflow.python.keras.activations import sigmoid
 import tensorflow as tf; tf.keras
 # Settings
 import sys
-sys.path.append('../')
-# Enable autoreload only in Jupyter
-try:
-    from IPython import get_ipython
-    get_ipython().run_line_magic('load_ext', 'autoreload')
-except (ImportError, AttributeError):
-    pass  # Ignore if not in Jupyter
-
+sys.path.append('../src')
 # Import feature engineering functions
-from src.preprocessing import drop_columns
+from preprocessing import preprocess_data
 
 
 # Step 1: Load the concatenated cleaned data file (CSV)
