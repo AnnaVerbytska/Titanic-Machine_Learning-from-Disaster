@@ -17,11 +17,18 @@ import tensorflow as tf; tf.keras
 import sys
 sys.path.append('../src')
 # Import feature engineering functions
-from preprocessing import preprocess_data
+from preprocessing import preprocess_data, drop_columns
 
 
-# Step 1: Load the concatenated cleaned data file (CSV)
-data = pd.read_csv('cleaned_data.csv')
+# Step 1: Fetch the data
+train_df = pd.read_csv('../data/train.csv')
+test_df = pd.read_csv('../data/test.csv')
+# Concatenate both training and test data
+data = pd.concat([train_df,test_df]).reset_index(drop=True)
+
+# FEATURE ENGINEERING
+data = preprocess_data(data)
+data = drop_columns(data)
 
 # Step 2: Separate features (X) and target (y)
 X = data.drop(columns=['Survived'])  # Assuming 'Survived' is the target

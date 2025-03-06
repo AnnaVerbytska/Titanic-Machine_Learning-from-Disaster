@@ -4,6 +4,13 @@ from sklearn import model_selection
 from sklearn.linear_model import LogisticRegression
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler
+import warnings
+warnings.filterwarnings("ignore")
+# Settings
+import sys
+sys.path.append('../src')
+# Import feature engineering functions
+from preprocessing import preprocess_data, drop_columns
 
 # DATA INGESTION
 
@@ -21,9 +28,8 @@ data = pd.concat([train_df,test_df]).reset_index(drop=True)
 
 # FEATURE ENGINEERING
 
-# Drop non interested columns
-data.drop(['PassengerId','Name','Cabin','Embarked','Sex','Ticket','Age','Fare'], axis=1, inplace=True)
-data.head()
+data = preprocess_data(data)
+data = drop_columns(data)
 
 # split the training and test data again
 train_df = data[data.Survived != -1].reset_index(drop=True) 

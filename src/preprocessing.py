@@ -10,19 +10,6 @@ import pandas as pd
 #################################
 
 
-def drop_columns(data):
-    """
-    Perform feature engineering by dropping non-interested columns.
-
-    Parameters:
-    data (pd.DataFrame): The input DataFrame.
-
-    Returns:
-    pd.DataFrame: The DataFrame after dropping specified columns.
-    """
-    data.drop(['PassengerId', 'Name', 'Cabin', 'Ticket'], axis=1, inplace=True)
-    return data
-
 def fill_missing_values(data):
     """
     Fills missing values in the given DataFrame based on predefined rules:
@@ -55,16 +42,27 @@ def convert_categorical_to_numerical(data):
     data = pd.get_dummies(data, columns=['Sex','Pclass'], dtype=int, drop_first=True)
     return data
 
+def drop_columns(data):
+    """
+    Perform feature engineering by dropping non-interested columns.
+
+    Parameters:
+    data (pd.DataFrame): The input DataFrame.
+
+    Returns:
+    pd.DataFrame: The DataFrame after dropping specified columns.
+    """
+    data.drop(['PassengerId', 'Name', 'Cabin', 'Ticket', 'Embarked'], axis=1, inplace=True)
+    return data
+
 ###################
 # Master Function #
 ###################
 
-def preprocess_data(data, drop_cols=True, fill_missing=True, family_size=True, convert_categorical=True):
+def preprocess_data(data, fill_missing=True, family_size=True, convert_categorical=True):
     """
     Allows selecting specific preprocessing steps for experimentation.
     """
-    if drop_cols:
-        data = drop_columns(data)
     if fill_missing:
         data = fill_missing_values(data)
     if family_size:
