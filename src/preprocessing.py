@@ -52,7 +52,7 @@ def drop_columns(data):
     Returns:
     pd.DataFrame: The DataFrame after dropping specified columns.
     """
-    data.drop(['PassengerId', 'Name', 'Cabin', 'Ticket', 'Embarked'], axis=1, inplace=True)
+    data.drop(['Name', 'Cabin', 'Ticket', 'Embarked'], axis=1, inplace=True)
     return data
 
 ###################
