@@ -62,9 +62,6 @@ train_df = train_df.drop(columns=['PassengerId'], errors='ignore')
 X = train_df.drop(['Survived'], axis=1).values
 y = train_df['Survived'].values
 
-# Keep test_df features for final prediction
-#X_test = test_df.drop(['Survived', 'PassengerId'], axis=1, errors='ignore').values  # Ensure no errors
-
 # Split into train and validation sets
 X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.33, random_state=SEED, stratify=y)
 
