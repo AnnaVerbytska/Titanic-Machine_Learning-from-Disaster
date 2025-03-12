@@ -4,6 +4,10 @@
 **Language**
 Python 3.12.6
 
+**Install requirements**
+
+    pip install -r requirements.txt
+
 **Exploratory Data Analysis**
 
 *Libraries*: Seaborn, Matplotlib, 3D visualisations with Plotly
