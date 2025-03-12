@@ -19,5 +19,6 @@ Python 3.12.6
 
 **Models for Predicting Survivors of Titanic Crash**
 
-Logistic regression
-Neural Networks with Tensorflow and Keras
+- Logistic regression
+
+- Neural Networks with Tensorflow and Keras
