@@ -4,13 +4,21 @@ from sklearn import model_selection
 from sklearn.linear_model import LogisticRegression
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import ExtraTreesClassifier, GradientBoostingClassifier, StackingClassifier, VotingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
+from catboost import CatBoostClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
 import warnings
 warnings.filterwarnings("ignore")
 # Settings
 import sys
 sys.path.append('../src')
-# Import feature engineering functions
-from preprocessing import preprocess_data, drop_columns
+from preprocessing import preprocess_data, drop_columns # Import feature engineering functions
+from model_dispatcher import models, meta_model # Import models
 
 # DATA INGESTION
 
@@ -46,7 +54,7 @@ train_df = train_df.sample(frac=1,random_state=32).reset_index(drop=True)
 y = train_df.Survived.values
 
 # Inititate the kfold class
-kf = model_selection.StratifiedKFold(n_splits=5)
+kf = model_selection.StratifiedKFold(n_splits=5, shuffle=True, random_state=32)
 
 # fill the new kfold column
 for f, (t_, v_) in enumerate(kf.split(X=train_df,y=y)):
@@ -73,7 +81,7 @@ for fold in range(0,5):
     y_valid = df_valid.Survived.values
 
     # INITIALIZE THE MODEL & FINE-TUNING
-    model = LogisticRegression(penalty='l2', C=1.0, solver='liblinear', class_weight='balanced',random_state=32)
+    model = models["VotingClassifier"]
 
     # Fit the model on training data
     model.fit(x_train,y_train)
@@ -97,3 +105,4 @@ test_predictions = model.predict(test_df.values)
 submission = pd.read_csv('../data/submission.csv')
 submission['Survived'] = test_predictions
 submission.head(20)
+
