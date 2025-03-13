@@ -48,13 +48,13 @@ test_df = data[data.Survived == -1].reset_index(drop=True)
 train_df['kfold'] = -1
 
 # The next step is to randomize the rows of the data
-train_df = train_df.sample(frac=1,random_state=32).reset_index(drop=True)
+train_df = train_df.sample(frac=1,random_state=42).reset_index(drop=True)
 
 # Fetch the targets
 y = train_df.Survived.values
 
 # Inititate the kfold class
-kf = model_selection.StratifiedKFold(n_splits=5, shuffle=True, random_state=32)
+kf = model_selection.StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
 # fill the new kfold column
 for f, (t_, v_) in enumerate(kf.split(X=train_df,y=y)):
