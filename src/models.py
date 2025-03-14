@@ -81,7 +81,7 @@ for fold in range(0,5):
     y_valid = df_valid.Survived.values
 
     # INITIALIZE THE MODEL & FINE-TUNING
-    model = models["VotingClassifier"]
+    model = models['GradientBoostingClassifier']
 
     # Fit the model on training data
     model.fit(x_train,y_train)
@@ -106,3 +106,6 @@ submission = pd.read_csv('../data/submission.csv')
 submission['Survived'] = test_predictions
 submission.head(20)
 
+# Save to CSV
+submission.to_csv('../data/submission.csv', index=False)
+print("Submission file saved as 'submission.csv'.")

@@ -19,11 +19,7 @@ models = {
                                                     solver='liblinear', 
                                                     class_weight='balanced',
                                                     random_state=42), # Lower values of C= reduce overfitting
-    "DecisionTreeClassifier": DecisionTreeClassifier(max_depth=4,  # Limits overfitting 
-                                                    min_samples_split=10, # Prevents very small splits
-                                                    min_samples_leaf=4, # Ensures each leaf has enough samples
-                                                    criterion='gini', 
-                                                    random_state=42), # prone to overfitting
+    "DecisionTreeClassifier": DecisionTreeClassifier(class_weight='balanced', criterion='gini', min_samples_leaf=4, min_samples_split=3, random_state=42), # prone to overfitting
     "RandomForestClassifier": RandomForestClassifier(n_estimators=100, # More trees improve stability
                                                     max_depth=4,  #Prevents overfitting
                                                     min_samples_split=2, 
@@ -40,7 +36,7 @@ models = {
                                                     min_samples_split=8, 
                                                     min_samples_leaf=4, 
                                                     random_state=42),
-    "GradientBoostingClassifier": GradientBoostingClassifier(n_estimators=100, 
+    "GradientBoostingClassifier": GradientBoostingClassifier(n_estimators=200, 
                                                     learning_rate=0.1, # Smaller rate avoids overfitting
                                                     max_depth=3, 
                                                     min_samples_split=10, 
@@ -67,7 +63,7 @@ models = {
         ('cat', CatBoostClassifier(iterations=300, learning_rate=0.05, depth=5, verbose=0, random_state=42)), 
         ('rf', RandomForestClassifier(n_estimators=200, max_depth=6, random_state=42))], 
         final_estimator=meta_model, cv=5),
-
+        
     "VotingClassifier": VotingClassifier(
         estimators=[
         ('xgb', XGBClassifier(n_estimators=200, learning_rate=0.05, max_depth=4, random_state=42)),
