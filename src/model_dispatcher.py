@@ -15,11 +15,17 @@ meta_model = LogisticRegression()
 
 models = {
     
-    "LogisticRegression": LogisticRegression(penalty='l2', C=1.0, 
+    "LogisticRegression": LogisticRegression(penalty='l1', C=1.0, 
                                                     solver='liblinear', 
-                                                    class_weight='balanced',
+                                                    class_weight=None,
                                                     random_state=42), # Lower values of C= reduce overfitting
-    "DecisionTreeClassifier": DecisionTreeClassifier(class_weight='balanced', criterion='gini', min_samples_leaf=4, min_samples_split=3, random_state=42), # prone to overfitting
+    "DecisionTreeClassifier": DecisionTreeClassifier(class_weight='balanced', 
+                                                     criterion='gini', 
+                                                     min_samples_leaf=5, 
+                                                     min_samples_split=6, 
+                                                     max_depth=3, 
+                                                     ccp_alpha=0.01, 
+                                                     random_state=42), # prone to overfitting
     "RandomForestClassifier": RandomForestClassifier(n_estimators=100, # More trees improve stability
                                                     max_depth=4,  #Prevents overfitting
                                                     min_samples_split=2, 
