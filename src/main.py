@@ -36,7 +36,7 @@ data = pd.concat([train_df,test_df]).reset_index(drop=True)
 
 # FEATURE ENGINEERING
 
-data = preprocess_data(data, fill_missing=True, family_size=False, convert_categorical=True)
+data = preprocess_data(data)
 data = drop_columns(data)
 
 # split the training and test data again
@@ -81,7 +81,7 @@ for fold in range(0,5):
     y_valid = df_valid.Survived.values
 
     # INITIALIZE THE MODEL & FINE-TUNING
-    model = models['DecisionTreeClassifier']
+    model = models["GradientBoostingClassifier"]
 
     # Fit the model on training data
     model.fit(x_train,y_train)

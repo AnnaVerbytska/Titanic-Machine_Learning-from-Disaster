@@ -56,7 +56,7 @@ def drop_columns(data):
     Returns:
     pd.DataFrame: The DataFrame after dropping specified columns.
     """
-    data.drop(['Name', 'Cabin', 'Ticket', 'Embarked'], axis=1, inplace=True)
+    data.drop(['Name', 'Cabin', 'Ticket', 'Embarked', 'SibSp', 'Parch'], axis=1, inplace=True)
     return data
 
 ###################
